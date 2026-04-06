@@ -1,0 +1,27 @@
+{
+  "id": "resource-bridge",
+  "title": "Resource Bridge",
+  "description": "Позволяет макросам обновлять ресурсы (uses/charges) на предметах и активностях персонажей через GM-сокет.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": 12,
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "MaxKoffing"
+    }
+  ],
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "socketlib",
+        "type": "module"
+      }
+    ]
+  },
+  "socket": true
+}
