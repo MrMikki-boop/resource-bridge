@@ -41,8 +41,8 @@
   "socket": true,
   "flags": {},
   "url": "https://github.com/MrMikki-boop/resource-bridge",
-  "manifest": "https://github.com/MrMikki-boop/resource-bridge/releases/latest/download/module.json",
-  "download": "https://github.com/MrMikki-boop/resource-bridge/releases/download/v1.1.0/resource-bridge.zip",
+  "manifest": "https://github.com/MrMikki-boop/resource-bridge/releases/download/latest/module.json",
+  "download": "https://github.com/MrMikki-boop/resource-bridge/releases/download/latest/resource-bridge.zip",
   "changelog": "https://github.com/MrMikki-boop/resource-bridge/blob/main/CHANGELOG.md",
   "readme": "https://github.com/MrMikki-boop/resource-bridge/blob/main/README.md"
 }
