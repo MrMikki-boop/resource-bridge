@@ -2,143 +2,142 @@
  * Resource Bridge — модуль для обновления ресурсов (uses/charges)
  * на предметах и активностях через GM-сокет.
  *
+ * Совместимость: Foundry v13, D&D 5e 3.x / 4.x (5.2.5)
+ *
  * API для макросов:
- *   await ResourceBridge.updateItemUses(actorId, itemId, newValue)
- *   await ResourceBridge.updateActivityUses(actorId, itemId, activityId, newValue)
- *   await ResourceBridge.deductItemUses(actorId, itemId, amount)
- *   await ResourceBridge.deductActivityUses(actorId, itemId, activityId, amount)
+ *   ResourceBridge.resolve(actor, itemIdOrName)      → { item, charges, mode, activity }
+ *   await ResourceBridge.setCharges(actor, itemIdOrName, newValue)
+ *   await ResourceBridge.deductCharges(actor, itemIdOrName, amount)
  */
 
 const MODULE_ID = "resource-bridge";
 let socket;
 
-// ── GM-side handlers ────────────────────────────────
+// ── Утилита: найти предмет и определить где у него заряды ──────────────────
 
-async function _gmUpdateItemUses(actorId, itemId, newValue) {
-  const actor = game.actors.get(actorId);
-  if (!actor) throw new Error(`Resource Bridge: Actor ${actorId} not found`);
-  const item = actor.items.get(itemId);
-  if (!item) throw new Error(`Resource Bridge: Item ${itemId} not found on actor ${actor.name}`);
-  await item.update({ "system.uses.value": newValue });
-  return newValue;
-}
+function _resolveItem(actor, itemIdOrName) {
+  const item = actor.items.get(itemIdOrName)
+      ?? actor.items.find(i => i.name.toLowerCase().includes(itemIdOrName.toLowerCase()));
 
-async function _gmUpdateActivityUses(actorId, itemId, activityId, newValue) {
-  const actor = game.actors.get(actorId);
-  if (!actor) throw new Error(`Resource Bridge: Actor ${actorId} not found`);
-  const item = actor.items.get(itemId);
-  if (!item) throw new Error(`Resource Bridge: Item ${itemId} not found on actor ${actor.name}`);
+  if (!item) return null;
 
-  // D&D 5e v3/v4: активности хранятся в item.system.activities
-  if (!item.system.activities) {
-    throw new Error(`Resource Bridge: Item ${item.name} has no activities`);
+  // ── Activity-level uses (D&D 5e v3/v4/5.x) ──────────────────────────────
+  if (item.system.activities) {
+    const activities = item.system.activities.contents
+        ?? Array.from(item.system.activities.values?.() ?? []);
+
+    // ВАЖНО: uses.max в dnd5e 5.x хранится как строка-формула ("10"),
+    // поэтому НЕ проверяем max > 0 — просто ищем активность с объектом uses
+    const activity = activities.find(a => a?.uses != null && Object.keys(a.uses).length > 0);
+
+    if (activity) {
+      const charges = activity.uses.value ?? 0;
+      console.log(`Resource Bridge | "${item.name}": mode=activity, charges=${charges}, max=${activity.uses.max}, id=${activity.id}`);
+      return { item, activity, mode: "activity", charges };
+    }
   }
 
-  // Пробуем найти активность и вызвать её update
-  const activities = item.system.activities.contents
-    ?? Array.from(item.system.activities.values?.() ?? []);
-  const activity = activities.find(a => a.id === activityId)
-    ?? item.system.activities.get?.(activityId);
+  // ── Item-level uses (легаси / старый формат) ─────────────────────────────
+  if (item.system.uses) {
+    const uses = item.system.uses;
+    const maxNum = Number(uses.max ?? 0);
+    if (maxNum > 0 || uses.value != null) {
+      const charges = uses.value ?? 0;
+      console.log(`Resource Bridge | "${item.name}": mode=item, charges=${charges}, max=${uses.max}`);
+      return { item, activity: null, mode: "item", charges };
+    }
+  }
 
-  if (activity && typeof activity.update === "function") {
-    await activity.update({ "uses.value": newValue });
+  console.warn(
+      `Resource Bridge | "${item.name}": mode=none — uses не обнаружены.`,
+      "\nsystem.uses:", item.system.uses,
+      "\nactivities count:", item.system.activities?.contents?.length ?? 0
+  );
+  return { item, activity: null, mode: "none", charges: 0 };
+}
+
+// ── GM-side handlers ────────────────────────────────────────────────────────
+
+async function _gmSetCharges(actorId, itemId, _activityId, newValue) {
+  const actor = game.actors.get(actorId);
+  if (!actor) throw new Error(`Resource Bridge: Actor ${actorId} not found`);
+
+  const resolved = _resolveItem(actor, itemId);
+  if (!resolved) throw new Error(`Resource Bridge: Item "${itemId}" not found on ${actor.name}`);
+
+  const { item, activity, mode } = resolved;
+
+  if (mode === "activity" && activity) {
+    if (typeof activity.update === "function") {
+      await activity.update({ "uses.value": newValue });
+    } else {
+      await item.update({ [`system.activities.${activity.id}.uses.value`]: newValue });
+    }
+  } else if (mode === "item") {
+    await item.update({ "system.uses.value": newValue });
   } else {
-    // Фоллбэк: прямое обновление через путь
-    await item.update({ [`system.activities.${activityId}.uses.value`]: newValue });
+    throw new Error(`Resource Bridge: Item "${item.name}" has no configured uses (mode=none)`);
   }
+
+  console.log(`Resource Bridge | setCharges "${item.name}" → ${newValue} (mode=${mode})`);
   return newValue;
 }
 
-async function _gmDeductItemUses(actorId, itemId, amount) {
+async function _gmDeductCharges(actorId, itemId, amount) {
   const actor = game.actors.get(actorId);
   if (!actor) throw new Error(`Resource Bridge: Actor ${actorId} not found`);
-  const item = actor.items.get(itemId);
-  if (!item) throw new Error(`Resource Bridge: Item ${itemId} not found on actor ${actor.name}`);
-  const current = item.system.uses?.value ?? 0;
-  const newValue = Math.max(0, current - amount);
-  await item.update({ "system.uses.value": newValue });
-  return newValue;
+
+  const resolved = _resolveItem(actor, itemId);
+  if (!resolved) throw new Error(`Resource Bridge: Item "${itemId}" not found on ${actor.name}`);
+
+  const newValue = Math.max(0, resolved.charges - amount);
+  return _gmSetCharges(actorId, itemId, null, newValue);
 }
 
-async function _gmDeductActivityUses(actorId, itemId, activityId, amount) {
-  const actor = game.actors.get(actorId);
-  if (!actor) throw new Error(`Resource Bridge: Actor ${actorId} not found`);
-  const item = actor.items.get(itemId);
-  if (!item) throw new Error(`Resource Bridge: Item ${itemId} not found on actor ${actor.name}`);
-
-  // Получаем текущее значение зарядов
-  let current = 0;
-  const activities = item.system.activities?.contents
-    ?? Array.from(item.system.activities?.values?.() ?? []);
-  const activity = activities.find(a => a.id === activityId)
-    ?? item.system.activities?.get?.(activityId);
-
-  if (activity) {
-    current = activity.uses?.value ?? 0;
-  }
-
-  const newValue = Math.max(0, current - amount);
-  return _gmUpdateActivityUses(actorId, itemId, activityId, newValue);
-}
-
-// ── Public API ──────────────────────────────────────
+// ── Public API ──────────────────────────────────────────────────────────────
 
 class ResourceBridge {
   /**
-   * Установить значение uses на предмете
-   * @param {string} actorId
-   * @param {string} itemId
+   * Синхронно прочитать заряды предмета (локально, без сокета).
+   * @param {Actor} actor
+   * @param {string} itemIdOrName — id или подстрока имени
+   * @returns {{ item, activity, mode, charges } | null}
+   */
+  static resolve(actor, itemIdOrName) {
+    return _resolveItem(actor, itemIdOrName);
+  }
+
+  /**
+   * Установить точное значение зарядов (через GM-сокет).
+   * @param {Actor} actor — актор-владелец предмета
+   * @param {string} itemIdOrName
    * @param {number} newValue
    */
-  static async updateItemUses(actorId, itemId, newValue) {
-    return socket.executeAsGM("updateItemUses", actorId, itemId, newValue);
+  static async setCharges(actor, itemIdOrName, newValue) {
+    return socket.executeAsGM("setCharges", actor.id, itemIdOrName, null, newValue);
   }
 
   /**
-   * Установить значение uses на активности предмета (D&D 5e v3/v4)
-   * @param {string} actorId
-   * @param {string} itemId
-   * @param {string} activityId
-   * @param {number} newValue
-   */
-  static async updateActivityUses(actorId, itemId, activityId, newValue) {
-    return socket.executeAsGM("updateActivityUses", actorId, itemId, activityId, newValue);
-  }
-
-  /**
-   * Вычесть amount из uses предмета
-   * @param {string} actorId
-   * @param {string} itemId
+   * Вычесть заряды (через GM-сокет).
+   * @param {Actor} actor — актор-владелец предмета
+   * @param {string} itemIdOrName
    * @param {number} amount
    */
-  static async deductItemUses(actorId, itemId, amount) {
-    return socket.executeAsGM("deductItemUses", actorId, itemId, amount);
-  }
-
-  /**
-   * Вычесть amount из uses активности (D&D 5e v3/v4)
-   * @param {string} actorId
-   * @param {string} itemId
-   * @param {string} activityId
-   * @param {number} amount
-   */
-  static async deductActivityUses(actorId, itemId, activityId, amount) {
-    return socket.executeAsGM("deductActivityUses", actorId, itemId, activityId, amount);
+  static async deductCharges(actor, itemIdOrName, amount) {
+    return socket.executeAsGM("deductCharges", actor.id, itemIdOrName, amount);
   }
 }
 
-// ── Init ────────────────────────────────────────────
+// ── Init ────────────────────────────────────────────────────────────────────
 
 Hooks.once("socketlib.ready", () => {
   socket = socketlib.registerModule(MODULE_ID);
-  socket.register("updateItemUses", _gmUpdateItemUses);
-  socket.register("updateActivityUses", _gmUpdateActivityUses);
-  socket.register("deductItemUses", _gmDeductItemUses);
-  socket.register("deductActivityUses", _gmDeductActivityUses);
+  socket.register("setCharges",    _gmSetCharges);
+  socket.register("deductCharges", _gmDeductCharges);
 });
 
 Hooks.once("ready", () => {
-  // Глобальный API — доступен из макросов как ResourceBridge.*
   globalThis.ResourceBridge = ResourceBridge;
-  console.log("Resource Bridge | Ready — API: ResourceBridge.updateItemUses / deductItemUses / updateActivityUses / deductActivityUses");
+  console.log(`Resource Bridge | Ready ✓ (dnd5e ${game.system.version})`);
+  console.log("Resource Bridge | API: ResourceBridge.resolve() / setCharges() / deductCharges()");
 });
