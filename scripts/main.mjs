@@ -22,13 +22,19 @@ function _resolveItem(actor, itemIdOrName) {
   if (!item) return null;
 
   // ── Activity-level uses (D&D 5e v3/v4/5.x) ──────────────────────────────
+  // Активность считается "с зарядами" ТОЛЬКО если у неё непустой max.
+  // Пустой max ("" или 0) означает что активность не управляет зарядами —
+  // они могут быть на самом предмете.
   if (item.system.activities) {
     const activities = item.system.activities.contents
         ?? Array.from(item.system.activities.values?.() ?? []);
 
-    // ВАЖНО: uses.max в dnd5e 5.x хранится как строка-формула ("10"),
-    // поэтому НЕ проверяем max > 0 — просто ищем активность с объектом uses
-    const activity = activities.find(a => a?.uses != null && Object.keys(a.uses).length > 0);
+    const activity = activities.find(a => {
+      if (!a?.uses) return false;
+      const max = a.uses.max;
+      // max должен быть непустой строкой или числом > 0
+      return (typeof max === "string" && max.trim() !== "") || (typeof max === "number" && max > 0);
+    });
 
     if (activity) {
       const charges = activity.uses.value ?? 0;
@@ -37,11 +43,11 @@ function _resolveItem(actor, itemIdOrName) {
     }
   }
 
-  // ── Item-level uses (легаси / старый формат) ─────────────────────────────
+  // ── Item-level uses ──────────────────────────────────────────────────────
   if (item.system.uses) {
     const uses = item.system.uses;
     const maxNum = Number(uses.max ?? 0);
-    if (maxNum > 0 || uses.value != null) {
+    if (maxNum > 0) {
       const charges = uses.value ?? 0;
       console.log(`Resource Bridge | "${item.name}": mode=item, charges=${charges}, max=${uses.max}`);
       return { item, activity: null, mode: "item", charges };
@@ -51,7 +57,7 @@ function _resolveItem(actor, itemIdOrName) {
   console.warn(
       `Resource Bridge | "${item.name}": mode=none — uses не обнаружены.`,
       "\nsystem.uses:", item.system.uses,
-      "\nactivities count:", item.system.activities?.contents?.length ?? 0
+      "\nactivities:", item.system.activities?.contents?.length ?? 0
   );
   return { item, activity: null, mode: "none", charges: 0 };
 }
@@ -74,7 +80,8 @@ async function _gmSetCharges(actorId, itemId, _activityId, newValue) {
       await item.update({ [`system.activities.${activity.id}.uses.value`]: newValue });
     }
   } else if (mode === "item") {
-    await item.update({ "system.uses.value": newValue });
+    const currentMax = Number(item.system.uses.max ?? 0);
+    await item.update({ "system.uses.spent": currentMax - newValue });
   } else {
     throw new Error(`Resource Bridge: Item "${item.name}" has no configured uses (mode=none)`);
   }
