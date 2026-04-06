@@ -17,7 +17,7 @@ let socket;
 
 function _resolveItem(actor, itemIdOrName) {
   const item = actor.items.get(itemIdOrName)
-      ?? actor.items.find(i => i.name.toLowerCase().includes(itemIdOrName.toLowerCase()));
+    ?? actor.items.find(i => i.name.toLowerCase().includes(itemIdOrName.toLowerCase()));
 
   if (!item) return null;
 
@@ -27,7 +27,7 @@ function _resolveItem(actor, itemIdOrName) {
   // они могут быть на самом предмете.
   if (item.system.activities) {
     const activities = item.system.activities.contents
-        ?? Array.from(item.system.activities.values?.() ?? []);
+      ?? Array.from(item.system.activities.values?.() ?? []);
 
     const activity = activities.find(a => {
       if (!a?.uses) return false;
@@ -55,9 +55,9 @@ function _resolveItem(actor, itemIdOrName) {
   }
 
   console.warn(
-      `Resource Bridge | "${item.name}": mode=none — uses не обнаружены.`,
-      "\nsystem.uses:", item.system.uses,
-      "\nactivities:", item.system.activities?.contents?.length ?? 0
+    `Resource Bridge | "${item.name}": mode=none — uses не обнаружены.`,
+    "\nsystem.uses:", item.system.uses,
+    "\nactivities:", item.system.activities?.contents?.length ?? 0
   );
   return { item, activity: null, mode: "none", charges: 0 };
 }
