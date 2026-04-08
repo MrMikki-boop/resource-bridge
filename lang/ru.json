@@ -1,0 +1,82 @@
+{
+  "resource-bridge": {
+    "btn": {
+      "save": "Сохранить",
+      "cancel": "Отмена"
+    },
+    "header": {
+      "button": "RB Триггеры"
+    },
+    "list": {
+      "empty": "Нет настроенных триггеров. Нажмите «Добавить».",
+      "add": "Добавить триггер",
+      "noName": "Без названия",
+      "event": "Событие",
+      "action": "Действие",
+      "target": "Цель",
+      "sourceItem": "Предмет-источник",
+      "oncePerRound": "1/раунд",
+      "enable": "Включить",
+      "disable": "Отключить"
+    },
+    "edit": {
+      "titleNew": "Новый триггер",
+      "titleEdit": "Редактирование: {name}",
+      "name": "Название",
+      "namePlaceholder": "Например: Очки Гнева",
+      "event": "Событие (триггер)",
+      "itemFilter": "Фильтр: только при использовании этого предмета",
+      "itemFilterPlaceholder": "Короткий меч (пусто = любой предмет)",
+      "itemFilterHint": "Подстрока имени предмета или его ID. Оставьте пустым — триггер сработает от любого предмета.",
+      "action": "Действие",
+      "targetResource": "Ресурс актора",
+      "targetItem": "Название предмета-цели (или ID)",
+      "targetItemPlaceholder": "Очки Бешенства",
+      "useMode": "Режим изменения uses",
+      "useModeHint": "+spent — накапливается (ОГ: 0→1→2…). +value/−spent — убывает (ОБ: 4→3→2…).",
+      "delta": "Значение (+N)",
+      "oncePerRound": "Один раз за раунд",
+      "excludeTypes": "Исключить типы существ",
+      "excludeTypesHint": "Триггер не сработает, если все цели — существа этих типов."
+    },
+    "target": {
+      "resource": "Ресурс: {name}",
+      "item": "Предмет: {name}"
+    },
+    "events": {
+      "damage-taken": "Получил урон",
+      "damage-dealt": "Нанёс урон",
+      "critical-hit": "Критический удар",
+      "reduce-to-zero": "Снизил врага до 0 HP",
+      "item-used": "Использовал предмет / атаковал"
+    },
+    "actions": {
+      "increment-resource": "Увеличить ресурс актора",
+      "increment-item": "Изменить uses предмета"
+    },
+    "useModes": {
+      "spent": "убывает: ОБ 4→3→2…",
+      "value": "накапливается: ОГ 0→1→2…"
+    },
+    "resources": {
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "tertiary": "Tertiary"
+    },
+    "creatureTypes": {
+      "undead": "Нежить",
+      "construct": "Конструкт",
+      "elemental": "Элементаль",
+      "fiend": "Исчадие",
+      "celestial": "Небожитель",
+      "ooze": "Слизь",
+      "plant": "Растение",
+      "aberration": "Аберрация"
+    },
+    "resources": {
+      "primary": "Первичный",
+      "secondary": "Вторичный",
+      "tertiary": "Третичный"
+    }
+  }
+}

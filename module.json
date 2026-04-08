@@ -2,7 +2,7 @@
   "id": "resource-bridge",
   "title": "Resource Bridge",
   "description": "Exposes a global ResourceBridge API so macros can reliably read and modify item/activity uses on any actor, routing writes through the GM socket for permission safety. Supports D&D 5e 3.x / 4.x / 5.x item-level and activity-level uses.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "compatibility": {
     "minimum": "12",
@@ -16,6 +16,18 @@
   ],
   "esmodules": [
     "scripts/main.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
   ],
   "relationships": {
     "requires": [
@@ -41,8 +53,8 @@
   "socket": true,
   "flags": {},
   "url": "https://github.com/MrMikki-boop/resource-bridge",
-  "manifest": "https://github.com/MrMikki-boop/resource-bridge/releases/download/latest/module.json",
-  "download": "https://github.com/MrMikki-boop/resource-bridge/releases/download/latest/resource-bridge.zip",
+  "manifest": "https://github.com/MrMikki-boop/resource-bridge/releases/latest/download/module.json",
+  "download": "https://github.com/MrMikki-boop/resource-bridge/releases/download/v2.1.0/resource-bridge.zip",
   "changelog": "https://github.com/MrMikki-boop/resource-bridge/blob/main/CHANGELOG.md",
   "readme": "https://github.com/MrMikki-boop/resource-bridge/blob/main/README.md"
 }

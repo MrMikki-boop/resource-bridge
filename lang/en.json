@@ -1,0 +1,82 @@
+{
+  "resource-bridge": {
+    "btn": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "header": {
+      "button": "RB Triggers"
+    },
+    "list": {
+      "empty": "No triggers configured. Click «Add trigger».",
+      "add": "Add trigger",
+      "noName": "Unnamed",
+      "event": "Event",
+      "action": "Action",
+      "target": "Target",
+      "sourceItem": "Source item",
+      "oncePerRound": "1/round",
+      "enable": "Enable",
+      "disable": "Disable"
+    },
+    "edit": {
+      "titleNew": "New trigger",
+      "titleEdit": "Edit: {name}",
+      "name": "Name",
+      "namePlaceholder": "E.g.: Rage Points",
+      "event": "Event (trigger)",
+      "itemFilter": "Filter: only when using this item",
+      "itemFilterPlaceholder": "Short Sword (empty = any item)",
+      "itemFilterHint": "Item name substring or ID. Leave empty to trigger from any item.",
+      "action": "Action",
+      "targetResource": "Actor resource",
+      "targetItem": "Target item name (or ID)",
+      "targetItemPlaceholder": "Fury Points",
+      "useMode": "Uses change mode",
+      "useModeHint": "+spent — accumulates (RP: 0→1→2…). +value/−spent — depletes (FP: 4→3→2…).",
+      "delta": "Amount (+N)",
+      "oncePerRound": "Once per round",
+      "excludeTypes": "Exclude creature types",
+      "excludeTypesHint": "Trigger won't fire if all targets are creatures of these types."
+    },
+    "target": {
+      "resource": "Resource: {name}",
+      "item": "Item: {name}"
+    },
+    "events": {
+      "damage-taken": "Took damage",
+      "damage-dealt": "Dealt damage",
+      "critical-hit": "Critical hit",
+      "reduce-to-zero": "Reduced enemy to 0 HP",
+      "item-used": "Used item / attacked"
+    },
+    "actions": {
+      "increment-resource": "Increment actor resource",
+      "increment-item": "Modify item uses"
+    },
+    "useModes": {
+      "spent": "depletes: FP 4→3→2…",
+      "value": "accumulates: RP 0→1→2…"
+    },
+    "resources": {
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "tertiary": "Tertiary"
+    },
+    "creatureTypes": {
+      "undead": "Undead",
+      "construct": "Construct",
+      "elemental": "Elemental",
+      "fiend": "Fiend",
+      "celestial": "Celestial",
+      "ooze": "Ooze",
+      "plant": "Plant",
+      "aberration": "Aberration"
+    },
+    "resources": {
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "tertiary": "Tertiary"
+    }
+  }
+}
