@@ -34,8 +34,8 @@ export function getTriggerActionLabels() {
 
 // ── Режим изменения uses ───────────────────────────────────────────────────
 export const ITEM_USE_MODES = {
-  spent: "spent",
-  value: "value",
+  SPENT: "spent",
+  VALUE: "value",
 };
 
 export function getItemUseModeLabels() {

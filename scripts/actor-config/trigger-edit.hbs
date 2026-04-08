@@ -1,106 +1,41 @@
 <div class="rb-edit-wrap">
     <style>
-        .rb-edit-wrap {
-            padding: 4px 2px;
-            font-family: var(--font-primary);
-        }
-
-        .rb-field {
-            margin-bottom: 10px;
-        }
-
-        .rb-field > label, .rb-field > legend {
-            display: block;
-            font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 3px;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-        }
-
-        .rb-field input[type="text"], .rb-field input[type="number"], .rb-field select {
-            width: 100%;
-        }
-
-        .rb-field.rb-inline {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .rb-field.rb-inline input[type="checkbox"] {
-            margin: 0;
-            width: auto;
-        }
-
-        .rb-field.rb-inline label {
-            font-weight: normal;
-            font-size: 12px;
-            margin: 0;
-            text-transform: none;
-            cursor: pointer;
-        }
-
-        .rb-check-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px 14px;
-            margin-top: 4px;
-        }
-
-        .rb-check-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            font-weight: normal;
-            cursor: pointer;
-        }
-
-        .rb-check-label input {
-            margin: 0;
-            width: auto;
-        }
-
-        .rb-section {
-            background: rgba(0, 0, 0, .03);
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
-        }
-
-        .rb-section legend {
-            font-weight: bold;
-            font-size: 11px;
-            color: #555;
-            text-transform: uppercase;
-        }
-
-        .rb-hint {
-            font-size: 10px;
-            color: #888;
-            margin-top: 2px;
-            font-style: italic;
-        }
+        .rb-edit-wrap { padding: 4px 2px; font-family: var(--font-primary); }
+        .rb-field { margin-bottom: 10px; }
+        .rb-field > label, .rb-field > legend { display: block; font-weight: bold; font-size: 11px; margin-bottom: 3px; color: #444; text-transform: uppercase; letter-spacing: .03em; }
+        .rb-field input[type="text"], .rb-field input[type="number"], .rb-field select { width: 100%; }
+        .rb-field.rb-inline { display: flex; align-items: center; gap: 8px; }
+        .rb-field.rb-inline input[type="checkbox"] { margin: 0; width: auto; }
+        .rb-field.rb-inline label { font-weight: normal; font-size: 12px; margin: 0; text-transform: none; cursor: pointer; }
+        .rb-check-group { display: flex; flex-wrap: wrap; gap: 5px 14px; margin-top: 4px; }
+        .rb-check-label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: normal; cursor: pointer; }
+        .rb-check-label input { margin: 0; width: auto; }
+        .rb-section { background: rgba(0,0,0,.03); border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-bottom: 8px; }
+        .rb-section legend { font-weight: bold; font-size: 11px; color: #555; text-transform: uppercase; }
+        .rb-hint { font-size: 10px; color: #888; margin-top: 2px; font-style: italic; }
+        .rb-events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 4px; }
     </style>
 
+    {{!-- Название --}}
     <div class="rb-field">
         <label>{{localize "resource-bridge.edit.name"}}</label>
-        <input type="text" name="name" value="{{trigger.name}}"
-               placeholder="{{localize "resource-bridge.edit.namePlaceholder"}}">
+        <input type="text" name="name" value="{{trigger.name}}" placeholder="{{localize "resource-bridge.edit.namePlaceholder"}}">
     </div>
 
-    <div class="rb-field">
-        <label>{{localize "resource-bridge.edit.event"}}</label>
-        <select name="event">
+    {{!-- События — мультиселект чекбоксами --}}
+    <fieldset class="rb-section">
+        <legend>{{localize "resource-bridge.edit.events"}}</legend>
+        <div class="rb-events-grid">
             {{#each eventOptions}}
-                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                <label class="rb-check-label">
+                    <input type="checkbox" name="events.{{value}}" {{#if checked}}checked{{/if}}>
+                    {{label}}
+                </label>
             {{/each}}
-        </select>
-    </div>
+        </div>
+    </fieldset>
 
+    {{!-- Фильтр предмета-источника (только для damage-dealt / item-used) --}}
     {{#if showItemFilter}}
         <div class="rb-field">
             <label>{{localize "resource-bridge.edit.itemFilter"}}</label>
@@ -110,6 +45,7 @@
         </div>
     {{/if}}
 
+    {{!-- Действие --}}
     <div class="rb-field">
         <label>{{localize "resource-bridge.edit.action"}}</label>
         <select name="action">
@@ -119,6 +55,7 @@
         </select>
     </div>
 
+    {{!-- Ресурс --}}
     {{#if showResource}}
         <div class="rb-section">
             <div class="rb-field">
@@ -132,12 +69,14 @@
         </div>
     {{/if}}
 
+    {{!-- Предмет-цель + useMode --}}
     {{#if showItem}}
         <div class="rb-section">
             <div class="rb-field">
                 <label>{{localize "resource-bridge.edit.targetItem"}}</label>
                 <input type="text" name="targetItem" value="{{trigger.targetItem}}"
                        placeholder="{{localize "resource-bridge.edit.targetItemPlaceholder"}}">
+                <p class="rb-hint">{{localize "resource-bridge.edit.targetItemHint"}}</p>
             </div>
             <div class="rb-field">
                 <label>{{localize "resource-bridge.edit.useMode"}}</label>
@@ -146,21 +85,24 @@
                         <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
                     {{/each}}
                 </select>
-                <!--      <p class="rb-hint">{{localize "resource-bridge.edit.useModeHint"}}</p>-->
+                <p class="rb-hint">{{localize "resource-bridge.edit.useModeHint"}}</p>
             </div>
         </div>
     {{/if}}
 
+    {{!-- Delta --}}
     <div class="rb-field">
         <label>{{localize "resource-bridge.edit.delta"}}</label>
         <input type="number" name="delta" value="{{trigger.delta}}" min="1" step="1">
     </div>
 
+    {{!-- Once per round --}}
     <div class="rb-field rb-inline">
         <input type="checkbox" name="oncePerRound" id="rb-opr" {{#if trigger.oncePerRound}}checked{{/if}}>
         <label for="rb-opr">{{localize "resource-bridge.edit.oncePerRound"}}</label>
     </div>
 
+    {{!-- Исключить типы существ --}}
     {{#if showExcludeTypes}}
         <fieldset class="rb-section">
             <legend>{{localize "resource-bridge.edit.excludeTypes"}}</legend>

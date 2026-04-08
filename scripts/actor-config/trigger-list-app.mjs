@@ -1,4 +1,4 @@
-import { MODULE_ID, TRIGGER_EVENTS, RESOURCE_KEYS, getTriggerEventLabels, getTriggerActionLabels, getResourceLabels } from "../constants.mjs";
+import { MODULE_ID, getTriggerEventLabels, getTriggerActionLabels, getResourceLabels } from "../constants.mjs";
 import { getTriggers, setTriggers } from "../trigger-config.mjs";
 import { TriggerEditApp } from "./trigger-edit-app.mjs";
 
@@ -18,9 +18,7 @@ export class TriggerListApp extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    list: {
-      template: `modules/${MODULE_ID}/scripts/actor-config/trigger-list.hbs`,
-    },
+    list: { template: `modules/${MODULE_ID}/scripts/actor-config/trigger-list.hbs` },
   };
 
   #actor;
@@ -30,30 +28,30 @@ export class TriggerListApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.#actor = actor;
   }
 
-  get title() {
-    return `⚡ Resource Bridge — ${this.#actor.name}`;
-  }
-
-  get id() {
-    return `${MODULE_ID}-triggers-${this.#actor.id}`;
-  }
+  get title() { return `⚡ Resource Bridge — ${this.#actor.name}`; }
+  get id()    { return `${MODULE_ID}-triggers-${this.#actor.id}`; }
 
   _prepareContext(_options) {
     const eventLabels  = getTriggerEventLabels();
     const actionLabels = getTriggerActionLabels();
-    const triggers = getTriggers(this.#actor);
+    const triggers     = getTriggers(this.#actor);
 
     return {
-      triggers: triggers.map((t, i) => ({
-        ...t,
-        idx:         i,
-        eventLabel:  eventLabels[t.event]   ?? t.event,
-        actionLabel: actionLabels[t.action] ?? t.action,
-        targetDesc:  this.#targetDesc(t),
-        sourceDesc:  t.sourceItemFilter
-          ? `${game.i18n.localize("resource-bridge.list.sourceItem")}: ${t.sourceItemFilter}`
-          : "",
-      })),
+      triggers: triggers.map((t, i) => {
+        // Поддержка старого формата (event: string)
+        const events = Array.isArray(t.events) ? t.events : (t.event ? [t.event] : []);
+        return {
+          ...t,
+          idx:         i,
+          // Склеиваем несколько событий через " / "
+          eventLabel:  events.map(e => eventLabels[e] ?? e).join(" / "),
+          actionLabel: actionLabels[t.action] ?? t.action,
+          targetDesc:  this.#targetDesc(t),
+          sourceDesc:  t.sourceItemFilter
+              ? `${game.i18n.localize("resource-bridge.list.sourceItem")}: ${t.sourceItemFilter}`
+              : "",
+        };
+      }),
     };
   }
 
@@ -71,7 +69,7 @@ export class TriggerListApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const blank = {
       id:               foundry.utils.randomID(),
       name:             "",
-      event:            "damage-taken",
+      events:           ["damage-taken"],
       action:           "increment-resource",
       targetResource:   "primary",
       targetItem:       "",

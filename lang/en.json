@@ -37,7 +37,9 @@
       "delta": "Amount (+N)",
       "oncePerRound": "Once per round",
       "excludeTypes": "Exclude creature types",
-      "excludeTypesHint": "Trigger won't fire if all targets are creatures of these types."
+      "excludeTypesHint": "Trigger won't fire if all targets are creatures of these types.",
+      "events": "Events (multiple allowed)",
+      "targetItemHint": "You can paste a full UUID: Actor.xxx.Item.yyy — the module will extract the last segment."
     },
     "target": {
       "resource": "Resource: {name}",
