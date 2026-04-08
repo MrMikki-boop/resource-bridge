@@ -2,7 +2,7 @@
   "id": "resource-bridge",
   "title": "Resource Bridge",
   "description": "Exposes a global ResourceBridge API so macros can reliably read and modify item/activity uses on any actor, routing writes through the GM socket for permission safety. Supports D&D 5e 3.x / 4.x / 5.x item-level and activity-level uses.",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "license": "MIT",
   "compatibility": {
     "minimum": "12",
