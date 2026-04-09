@@ -1,28 +1,137 @@
 <div class="rb-edit-wrap">
     <style>
-        .rb-edit-wrap { padding: 4px 2px; font-family: var(--font-primary); }
-        .rb-field { margin-bottom: 10px; }
-        .rb-field > label, .rb-field > legend { display: block; font-weight: bold; font-size: 11px; margin-bottom: 3px; color: #444; text-transform: uppercase; letter-spacing: .03em; }
-        .rb-field input[type="text"], .rb-field input[type="number"], .rb-field select { width: 100%; }
-        .rb-field.rb-inline { display: flex; align-items: center; gap: 8px; }
-        .rb-field.rb-inline input[type="checkbox"] { margin: 0; width: auto; }
-        .rb-field.rb-inline label { font-weight: normal; font-size: 12px; margin: 0; text-transform: none; cursor: pointer; }
-        .rb-check-group { display: flex; flex-wrap: wrap; gap: 5px 14px; margin-top: 4px; }
-        .rb-check-label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: normal; cursor: pointer; }
-        .rb-check-label input { margin: 0; width: auto; }
-        .rb-section { background: rgba(0,0,0,.03); border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-bottom: 8px; }
-        .rb-section legend { font-weight: bold; font-size: 11px; color: #555; text-transform: uppercase; }
-        .rb-hint { font-size: 10px; color: #888; margin-top: 2px; font-style: italic; }
-        .rb-events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+
+        .rb-edit-wrap {
+            padding: 12px;
+            font-family: var(--font-primary);
+            background: linear-gradient(160deg, #1c0905 0%, #250b04 100%);
+            color: #c06030;
+        }
+
+        .rb-field { margin-bottom: 12px; }
+
+        .rb-field > label,
+        .rb-field > legend {
+            display: block;
+            font-family: 'Cinzel', Georgia, serif;
+            font-weight: 700;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #8a4020;
+            margin-bottom: 5px;
+        }
+
+        .rb-field input[type="text"],
+        .rb-field input[type="number"],
+        .rb-field select {
+            width: 100%;
+            background: rgba(0,0,0,0.5) !important;
+            border: 1px solid rgba(139,48,0,0.6) !important;
+            border-radius: 4px !important;
+            color: #ff8040 !important;
+        }
+        .rb-field input[type="text"]:focus,
+        .rb-field input[type="number"]:focus,
+        .rb-field select:focus {
+            border-color: #c83000 !important;
+            box-shadow: 0 0 6px rgba(200,48,0,0.4) !important;
+            outline: none;
+        }
+        .rb-field select option {
+            background: #1a0804;
+            color: #ff8040;
+        }
+
+        .rb-hint {
+            font-size: 10px;
+            color: #6a3818;
+            margin-top: 4px;
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .rb-section {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(139,48,0,0.4);
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+        }
+        .rb-section > legend {
+            font-family: 'Cinzel', Georgia, serif;
+            font-weight: 700;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #8a4020;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .rb-section .rb-field { margin-bottom: 8px; }
+        .rb-section .rb-field:last-child { margin-bottom: 0; }
+
+        .rb-events-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px 16px;
+        }
+
+        .rb-check-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: #c06030;
+            cursor: pointer;
+            padding: 2px 0;
+        }
+        .rb-check-label input[type="checkbox"] {
+            margin: 0;
+            width: auto;
+            cursor: pointer;
+            accent-color: #c83000;
+        }
+
+        .rb-check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 14px;
+        }
+        .rb-check-group .rb-check-label { font-size: 11px; }
+
+        .rb-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rb-inline input[type="checkbox"] {
+            margin: 0;
+            width: auto;
+            cursor: pointer;
+            accent-color: #c83000;
+        }
+        .rb-inline label {
+            font-weight: 500;
+            font-size: 12px;
+            color: #c06030;
+            cursor: pointer;
+        }
+
+        .rb-divider {
+            border: none;
+            border-top: 1px solid rgba(139,48,0,0.3);
+            margin: 12px 0;
+        }
     </style>
 
-    {{!-- Название --}}
     <div class="rb-field">
         <label>{{localize "resource-bridge.edit.name"}}</label>
-        <input type="text" name="name" value="{{trigger.name}}" placeholder="{{localize "resource-bridge.edit.namePlaceholder"}}">
+        <input type="text" name="name" value="{{trigger.name}}"
+               placeholder="{{localize "resource-bridge.edit.namePlaceholder"}}">
     </div>
 
-    {{!-- События — мультиселект чекбоксами --}}
     <fieldset class="rb-section">
         <legend>{{localize "resource-bridge.edit.events"}}</legend>
         <div class="rb-events-grid">
@@ -35,7 +144,6 @@
         </div>
     </fieldset>
 
-    {{!-- Фильтр предмета-источника (только для damage-dealt / item-used) --}}
     {{#if showItemFilter}}
         <div class="rb-field">
             <label>{{localize "resource-bridge.edit.itemFilter"}}</label>
@@ -45,7 +153,8 @@
         </div>
     {{/if}}
 
-    {{!-- Действие --}}
+    <hr class="rb-divider">
+
     <div class="rb-field">
         <label>{{localize "resource-bridge.edit.action"}}</label>
         <select name="action">
@@ -55,7 +164,6 @@
         </select>
     </div>
 
-    {{!-- Ресурс --}}
     {{#if showResource}}
         <div class="rb-section">
             <div class="rb-field">
@@ -69,7 +177,6 @@
         </div>
     {{/if}}
 
-    {{!-- Предмет-цель + useMode --}}
     {{#if showItem}}
         <div class="rb-section">
             <div class="rb-field">
@@ -90,21 +197,21 @@
         </div>
     {{/if}}
 
-    {{!-- Delta --}}
-    <div class="rb-field">
-        <label>{{localize "resource-bridge.edit.delta"}}</label>
-        <input type="number" name="delta" value="{{trigger.delta}}" min="1" step="1">
+    <hr class="rb-divider">
+
+    <div style="display:flex; gap:16px; align-items:flex-end;">
+        <div class="rb-field" style="flex:0 0 100px; margin-bottom:0;">
+            <label>{{localize "resource-bridge.edit.delta"}}</label>
+            <input type="number" name="delta" value="{{trigger.delta}}" min="1" step="1">
+        </div>
+        <div class="rb-inline" style="padding-bottom:5px; flex:1;">
+            <input type="checkbox" name="oncePerRound" id="rb-opr" {{#if trigger.oncePerRound}}checked{{/if}}>
+            <label for="rb-opr">{{localize "resource-bridge.edit.oncePerRound"}}</label>
+        </div>
     </div>
 
-    {{!-- Once per round --}}
-    <div class="rb-field rb-inline">
-        <input type="checkbox" name="oncePerRound" id="rb-opr" {{#if trigger.oncePerRound}}checked{{/if}}>
-        <label for="rb-opr">{{localize "resource-bridge.edit.oncePerRound"}}</label>
-    </div>
-
-    {{!-- Исключить типы существ --}}
     {{#if showExcludeTypes}}
-        <fieldset class="rb-section">
+        <fieldset class="rb-section" style="margin-top:12px;">
             <legend>{{localize "resource-bridge.edit.excludeTypes"}}</legend>
             <div class="rb-check-group">
                 {{#each creatureTypeOptions}}

@@ -1,54 +1,169 @@
 <div class="rb-list-wrap">
-  <style>
-    .rb-list-wrap { padding: 6px 2px; font-family: var(--font-primary); }
-    .rb-trigger-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; max-height: 480px; overflow-y: auto; }
-    .rb-empty { padding: 20px; text-align: center; color: #888; font-style: italic; }
-    .rb-trigger-card { background: rgba(0,0,0,0.04); border: 1px solid #ccc; border-radius: 4px; padding: 8px 10px; transition: opacity .2s; }
-    .rb-trigger-card.rb-disabled { opacity: .45; }
-    .rb-trigger-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .rb-trigger-name { font-weight: bold; font-size: 13px; color: #c83000; }
-    .rb-btn-group { display: flex; gap: 4px; }
-    .rb-btn-group button { background: none; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; padding: 2px 6px; font-size: 11px; color: #555; line-height: 1.4; }
-    .rb-btn-group button:hover { border-color: #999; color: #222; }
-    .rb-trigger-details { font-size: 11px; color: #555; line-height: 1.6; }
-    .rb-trigger-details .rb-source { font-style: italic; color: #888; }
-    .rb-add-btn { width: 100%; padding: 8px; background: rgba(200,48,0,.07); border: 1px dashed #c83000; border-radius: 4px; color: #c83000; cursor: pointer; font-weight: bold; font-size: 12px; margin-top: 4px; }
-    .rb-add-btn:hover { background: rgba(200,48,0,.14); }
-    .rb-add-btn i { margin-right: 4px; }
-  </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
 
-  <div class="rb-trigger-list">
-    {{#if triggers.length}}
-      {{#each triggers}}
-      <div class="rb-trigger-card {{#unless enabled}}rb-disabled{{/unless}}" data-idx="{{idx}}">
-        <div class="rb-trigger-header">
-          <span class="rb-trigger-name">{{#if name}}{{name}}{{else}}{{localize "resource-bridge.list.noName"}}{{/if}}</span>
-          <div class="rb-btn-group">
-            <button type="button" data-action="toggle" title="{{#if enabled}}{{localize "resource-bridge.list.disable"}}{{else}}{{localize "resource-bridge.list.enable"}}{{/if}}">
-              <i class="fas {{#if enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
-            </button>
-            <button type="button" data-action="edit" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" data-action="delete" title="Delete">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="rb-trigger-details">
-          <div><strong>{{localize "resource-bridge.list.event"}}:</strong> {{eventLabel}}{{#if oncePerRound}} <em>({{localize "resource-bridge.list.oncePerRound"}})</em>{{/if}}</div>
-          <div><strong>{{localize "resource-bridge.list.action"}}:</strong> {{actionLabel}} +{{delta}}</div>
-          <div><strong>{{localize "resource-bridge.list.target"}}:</strong> {{targetDesc}}</div>
-          {{#if sourceDesc}}<div class="rb-source">{{sourceDesc}}</div>{{/if}}
-        </div>
-      </div>
-      {{/each}}
-    {{else}}
-      <p class="rb-empty">{{localize "resource-bridge.list.empty"}}</p>
-    {{/if}}
-  </div>
+        .rb-list-wrap {
+            padding: 12px;
+            font-family: var(--font-primary);
+        }
 
-  <button type="button" class="rb-add-btn" data-action="add">
-    <i class="fas fa-plus"></i> {{localize "resource-bridge.list.add"}}
-  </button>
+        .rb-trigger-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .rb-empty {
+            padding: 28px 16px;
+            text-align: center;
+            color: #8a5030;
+            font-style: italic;
+            font-size: 12px;
+            font-family: 'Cinzel', Georgia, serif;
+            background: linear-gradient(135deg, #1a0804 0%, #2a0a04 100%);
+            border: 1px dashed rgba(200,48,0,0.4);
+            border-radius: 6px;
+        }
+
+        .rb-trigger-card {
+            background: linear-gradient(135deg, #1a0804 0%, #2a0a04 100%);
+            border: 1px solid rgba(200,48,0,0.5);
+            border-left: 3px solid #c83000;
+            border-radius: 6px;
+            padding: 10px 12px;
+            transition: box-shadow 0.15s ease, opacity 0.2s;
+            box-shadow: 0 0 8px rgba(200,48,0,0.15), inset 0 0 20px rgba(0,0,0,0.4);
+        }
+        .rb-trigger-card:hover {
+            box-shadow: 0 0 16px rgba(200,48,0,0.35), inset 0 0 20px rgba(0,0,0,0.4);
+        }
+        .rb-trigger-card.rb-disabled {
+            opacity: .45;
+            border-left-color: #5a3010;
+            box-shadow: none;
+        }
+
+        .rb-trigger-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+        .rb-trigger-name {
+            font-family: 'Cinzel', Georgia, serif;
+            font-weight: 700;
+            font-size: 13px;
+            color: #ff5a00;
+            text-shadow: 0 0 8px rgba(255,90,0,0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: 1px;
+        }
+
+        .rb-btn-group { display: flex; gap: 3px; flex-shrink: 0; }
+        .rb-btn-group button {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(139,48,0,0.5);
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 3px 7px;
+            font-size: 11px;
+            color: #c06030;
+            line-height: 1.4;
+            transition: all 0.15s;
+        }
+        .rb-btn-group button:hover {
+            background: rgba(200,48,0,0.2);
+            border-color: #c83000;
+            color: #ff8040;
+        }
+        .rb-btn-group button.rb-btn-delete:hover {
+            background: rgba(200,48,0,0.35);
+            border-color: #ff4000;
+            color: #ff6030;
+        }
+
+        .rb-trigger-details {
+            font-size: 11px;
+            color: #8a5030;
+            line-height: 1.7;
+        }
+        .rb-trigger-details strong { color: #c06030; }
+        .rb-trigger-details .rb-source {
+            font-style: italic;
+            color: #6a3818;
+            margin-top: 1px;
+        }
+
+        .rb-add-btn {
+            width: 100%;
+            padding: 9px 12px;
+            background: rgba(200,48,0,0.08);
+            border: 1px dashed rgba(200,48,0,0.5);
+            border-radius: 6px;
+            color: #ff5a00;
+            cursor: pointer;
+            font-family: 'Cinzel', Georgia, serif;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .rb-add-btn:hover {
+            background: rgba(200,48,0,0.18);
+            border-color: #c83000;
+            box-shadow: 0 0 10px rgba(200,48,0,0.25);
+        }
+    </style>
+
+    <div class="rb-trigger-list">
+        {{#if triggers.length}}
+            {{#each triggers}}
+                <div class="rb-trigger-card {{#unless enabled}}rb-disabled{{/unless}}" data-idx="{{idx}}">
+                    <div class="rb-trigger-header">
+                        <span class="rb-trigger-name">{{#if name}}{{name}}{{else}}{{localize "resource-bridge.list.noName"}}{{/if}}</span>
+                        <div class="rb-btn-group">
+                            <button type="button" data-action="toggle"
+                                    title="{{#if enabled}}{{localize "resource-bridge.list.disable"}}{{else}}{{localize "resource-bridge.list.enable"}}{{/if}}">
+                                <i class="fas {{#if enabled}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
+                            </button>
+                            <button type="button" data-action="edit" title="Edit">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button type="button" data-action="delete" class="rb-btn-delete" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="rb-trigger-details">
+                        <div>
+                            <strong>{{localize "resource-bridge.list.event"}}:</strong>
+                            {{eventLabel}}{{#if oncePerRound}} <em>({{localize "resource-bridge.list.oncePerRound"}})</em>{{/if}}
+                        </div>
+                        <div><strong>{{localize "resource-bridge.list.action"}}:</strong> {{actionLabel}} +{{delta}}</div>
+                        <div><strong>{{localize "resource-bridge.list.target"}}:</strong> {{targetDesc}}</div>
+                        {{#if sourceDesc}}<div class="rb-source">⚙ {{sourceDesc}}</div>{{/if}}
+                    </div>
+                </div>
+            {{/each}}
+        {{else}}
+            <p class="rb-empty">{{localize "resource-bridge.list.empty"}}</p>
+        {{/if}}
+    </div>
+
+    <button type="button" class="rb-add-btn" data-action="add">
+        <i class="fas fa-plus"></i>
+        {{localize "resource-bridge.list.add"}}
+    </button>
 </div>
