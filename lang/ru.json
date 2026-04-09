@@ -61,9 +61,9 @@
       "value": "накапливается: ОГ 0→1→2…"
     },
     "resources": {
-      "primary": "Primary",
-      "secondary": "Secondary",
-      "tertiary": "Tertiary"
+      "primary": "Первичный",
+      "secondary": "Вторичный",
+      "tertiary": "Третичный"
     },
     "creatureTypes": {
       "undead": "Нежить",
@@ -74,11 +74,6 @@
       "ooze": "Слизь",
       "plant": "Растение",
       "aberration": "Аберрация"
-    },
-    "resources": {
-      "primary": "Первичный",
-      "secondary": "Вторичный",
-      "tertiary": "Третичный"
     }
   }
 }

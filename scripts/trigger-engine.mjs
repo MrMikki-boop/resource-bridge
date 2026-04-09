@@ -80,20 +80,32 @@ function _onMidiRollComplete(workflow) {
   const actor = workflow.actor;
   const item  = workflow.item ?? null;
 
-  if (workflow.damageTotal > 0 && workflow.hitTargets?.size > 0) {
-    const targets = Array.from(workflow.hitTargets).map(t => t.actor).filter(Boolean);
+  // damageList содержит oldHP/newHP для каждой цели — надёжнее hitTargets
+  const damageList = workflow.damageList ?? [];
+
+  // damage-dealt: нанёс хоть какой-то урон хоть одной цели
+  const dealtDamage = damageList.some(d => (d.hpDamage ?? 0) > 0 || (d.totalDamage ?? 0) > 0);
+  if (dealtDamage) {
+    // Собираем акторов целей для фильтра excludeTypes
+    const targets = damageList
+        .map(d => d.actorId ? game.actors.get(d.actorId) : null)
+        .filter(Boolean);
     _processTriggersForActor(actor, TRIGGER_EVENTS.DAMAGE_DEALT, { targets, item });
   }
+
+  // critical-hit
   if (workflow.isCritical) {
     _processTriggersForActor(actor, TRIGGER_EVENTS.CRITICAL_HIT, { item });
   }
-  if (workflow.hitTargets?.size > 0) {
-    for (const token of workflow.hitTargets) {
-      const targetActor = token.actor;
-      if (targetActor?.system.attributes.hp.value <= 0) {
+
+  // reduce-to-zero: ищем цели у которых newHP === 0 и oldHP > 0
+  for (const d of damageList) {
+    if ((d.newHP ?? 1) <= 0 && (d.oldHP ?? 0) > 0) {
+      const targetActor = d.actorId ? game.actors.get(d.actorId) : null;
+      if (targetActor) {
         _processTriggersForActor(actor, TRIGGER_EVENTS.REDUCE_TO_ZERO, { target: targetActor, item });
-        break;
       }
+      // Не break — вдруг несколько целей упали одновременно (AoE)
     }
   }
 }
